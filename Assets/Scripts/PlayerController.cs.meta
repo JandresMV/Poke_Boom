@@ -1,0 +1,13 @@
+fileFormatVersion: 2
+guid: 08ae651f25c4d45428d934af646dbe39
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - pokeball: {instanceID: 0}
+  - pokeballPosition: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 726b45c729d2bd849ab912b9a59cace7
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - pokebola: {fileID: 919132149155446097, guid: a4a81905a37f58e4982437ee3b6186c3, type: 3}
+  - mainCamera: {instanceID: 0}
+  - piso: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
