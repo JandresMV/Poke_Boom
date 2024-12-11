@@ -14,6 +14,8 @@ public class PokebolaController : MonoBehaviour
     private Rigidbody pokeballRigidbody;
     private Vector3 initialCameraPosition;
     private bool hasBounced = false;
+    private bool isMovingToTarget = false;
+    private GameObject targetCharacter;
 
     void Start()
     {
@@ -37,6 +39,16 @@ public class PokebolaController : MonoBehaviour
 
         // Guardar la posición inicial de la cámara
         initialCameraPosition = mainCamera.transform.position;
+
+        // Obtener el personaje seleccionado
+        string selectedCharacterName = PlayerPrefs.GetString("SelectedCharacter");
+        targetCharacter = GameObject.Find(selectedCharacterName);
+
+        if (targetCharacter == null)
+        {
+            Debug.LogError("Personaje seleccionado no encontrado.");
+            return;
+        }
 
         StartCoroutine(FallFromSky());
     }
@@ -63,18 +75,21 @@ public class PokebolaController : MonoBehaviour
             hasBounced = true;
             pokeballRigidbody.AddForce(Vector3.up * bounceForce, ForceMode.Impulse);
 
-            // Restaurar la cámara y lanzar automáticamente después del rebote
+            // Restaurar la cámara y esperar a que la Pokebola se estabilice después del rebote
             StartCoroutine(ReturnCameraToInitialPosition());
             yield return new WaitForSeconds(0.5f);
-            StartCoroutine(AutoThrow());
+
+            // Mover la Pokebola hacia el personaje seleccionado
+            isMovingToTarget = true;
+            StartCoroutine(MoveToTarget());
         }
     }
 
     private void FollowPokeballWithCamera()
     {
         // Actualización de la posición de la cámara para que siga a la Pokebola
-        Vector3 targetPosition = transform.position + new Vector3(0, 5, -10); // Ajusta la distancia según sea necesario
-        mainCamera.transform.position = Vector3.Lerp(mainCamera.transform.position, targetPosition, Time.deltaTime * 5f);
+        Vector3 targetPosition = transform.position + new Vector3(50, 50, -100); // Ajusta la distancia según sea necesario
+        mainCamera.transform.position = Vector3.Lerp(mainCamera.transform.position, targetPosition, Time.deltaTime * 2f); // Suavizar el movimiento de la cámara
         mainCamera.transform.LookAt(transform.position); // Asegurar que la cámara siempre apunte a la Pokebola
     }
 
@@ -96,27 +111,30 @@ public class PokebolaController : MonoBehaviour
         mainCamera.transform.position = initialCameraPosition;
     }
 
-    IEnumerator AutoThrow()
+    IEnumerator MoveToTarget()
     {
-        // Seleccionar un personaje aleatorio como objetivo
-        GameObject target = GetRandomTarget();
-
-        while (target != null && Vector3.Distance(transform.position, target.transform.position) > 1f)
+        while (isMovingToTarget && Vector3.Distance(transform.position, targetCharacter.transform.position) > 1f)
         {
-            Vector3 direction = (target.transform.position - transform.position).normalized;
+            Vector3 direction = (targetCharacter.transform.position - transform.position).normalized;
             pokeballRigidbody.velocity = direction * moveSpeed;
             yield return null;
         }
 
-        if (target != null)
+        if (isMovingToTarget)
         {
-            Debug.Log("Pokebola alcanzó a " + target.name);
-        }
-    }
+            // Detener el movimiento y permitir que el personaje seleccionado controle la Pokebola
+            pokeballRigidbody.velocity = Vector3.zero;
+            pokeballRigidbody.isKinematic = true;
+            isMovingToTarget = false;
 
-    private GameObject GetRandomTarget()
-    {
-        // Elegir un personaje aleatorio de la lista
-        return characters[Random.Range(0, characters.Length)];
+            // Asignar la Pokebola al personaje seleccionado
+            PlayerController playerController = targetCharacter.GetComponent<PlayerController>();
+            if (playerController != null)
+            {
+                playerController.hasPokeball = true;
+                playerController.pokeball = gameObject;
+                playerController.pokeballPosition = targetCharacter.transform;
+            }
+        }
     }
 }

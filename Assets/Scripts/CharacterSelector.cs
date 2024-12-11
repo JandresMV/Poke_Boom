@@ -42,8 +42,8 @@ public class CharacterSelector : MonoBehaviour
         // Guardar la selección del personaje
         PlayerPrefs.SetString("SelectedCharacter", gameObject.name);
 
-        // Asignar el índice del personaje seleccionado al GameManager
-        GameManager.selectedCharacterIndex = transform.GetSiblingIndex();
+        // Debug para verificar el nombre del personaje seleccionado
+        Debug.Log("Selected Character Name: " + gameObject.name);
     }
 
     private void IncreaseScale()
